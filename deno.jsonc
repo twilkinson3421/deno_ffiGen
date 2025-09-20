@@ -5,9 +5,9 @@
     },
 
     "exports": {
-        ".": "./mod.ts",
-        "./symbols": "./symbols.ts",
-        "./types": "./types.ts"
+        ".": "./src/mod.ts",
+        "./symbols": "./src/symbols.ts",
+        "./types": "./src/types.ts"
     },
 
     "fmt": {
