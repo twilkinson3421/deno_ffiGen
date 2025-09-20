@@ -9,7 +9,7 @@ import literal = Utils.literal;
  *
  * For functions, use `"FUNCTION"` as the C type.
  */
-export const map = new Map<string, string>([
+export const map: Map<string, string> = new Map<string, string>([
     ["int", "i32"],
     ["signed int", "i32"],
     ["unsigned int", "u32"],
