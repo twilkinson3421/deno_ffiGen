@@ -1,62 +1,60 @@
 /** Generate FFI bindings for Deno */
 
-import type * as Symbols from "./symbols.ts";
+import * as Code from "./code.ts";
+import * as Config from "./config.ts";
+import type * as Symbol from "./symbol.ts";
 
-export * as Symbols from "./symbols.ts";
+export * as Symbol from "./symbol.ts";
+export * as Types from "./types.ts";
 
-class CodeWriter {
-    output = "";
-    indent = 0;
-
-    protected write(line: string): void {
-        const indent = "\t".repeat(this.indent);
-        this.output += `${indent}${line}\n`;
-    }
-}
-
-type ConfigPaths = {
-    structs: string;
+type PreambleConfig = {
+    paths: { types: string };
+    export: string;
 };
 
 /** Generate a foreign library interface */
-export class Writer extends CodeWriter {
-    begin(paths: ConfigPaths): void {
-        this.write(`import * as Struct from "${paths.structs}";`);
-        this.write("");
-        this.write("export const symbols = {");
+export class Writer extends Code.Writer {
+    /** Reset the underlying writer */
+    override reset(): void {
+        super.reset();
+    }
+
+    /** Begin writing the output */
+    preamble(config: PreambleConfig): void {
+        this.writeln(`import * as ${Config.TYPES_NAMESPACE} from "${config.paths.types}"`);
+        this.writeln("");
+        this.writeln(`export const ${config.export} = {`);
         this.indent++;
     }
 
+    /** End writing the output */
     end(): void {
         this.indent--;
-        this.write("} as const satisfies Deno.ForeignLibraryInterface;");
+        this.writeln("} as const satisfies Deno.ForeignLibraryInterface;");
     }
 
-    writeSymbol(symbol: Symbols.Def): void {
-        if (symbol.docstring) this.write(`/** ${symbol.docstring} */`);
+    /** Define a symbol */
+    addSymbol(symbol: Symbol.Definition): void {
+        if (symbol.docstring) this.writeln(`/** ${symbol.docstring} */`);
 
-        this.write(`${symbol.name}: {`);
+        this.writeln(`${symbol.name}: {`);
         this.indent++;
 
-        this.write(`name: "${symbol.cname}",`);
+        this.writeln(`name: "${symbol.cName}",`);
 
-        this.write("parameters: [");
+        this.writeln("parameters: [");
         this.indent++;
-        symbol.parameters.forEach((param) => {
-            if (param.type.ptrTo) this.write(`${param.type.type}, // <${param.type.ptrTo}> ${param.name}`);
-            else this.write(`${param.type.type}, // ${param.name}`);
-        });
+        symbol.parameters.forEach(({ type, name }) => this.writeln(`${type.type}, // <${type.cType}> ${name}`));
         this.indent--;
-        this.write("],");
+        this.writeln("],");
 
-        if (symbol.result.ptrTo) this.write(`result: ${symbol.result.type}, // <${symbol.result.ptrTo}>`);
-        else this.write(`result: ${symbol.result.type},`);
+        this.writeln(`result: ${symbol.result.type}, // <${symbol.result.cType}>`);
 
-        this.write(`optional: ${symbol.optional},`);
-        this.write(`nonblocking: ${symbol.nonblocking}`);
+        this.writeln(`optional: ${symbol.optional},`);
+        this.writeln(`nonblocking: ${symbol.nonblocking}`);
 
         this.indent--;
-        this.write("},");
-        this.write("");
+        this.writeln("},");
+        this.writeln("");
     }
 }

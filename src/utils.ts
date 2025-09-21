@@ -1,8 +1,4 @@
-export function literal(str: string): string {
-    return `"${str}"`;
-}
-
-export function sections(input: string, separators: string[], trim = true): string[] {
+export function segments(input: string, separators: string[], trim = true): string[] {
     const output = [];
 
     for (const separator of separators) {

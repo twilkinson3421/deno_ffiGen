@@ -6,7 +6,7 @@
 
     "exports": {
         ".": "./src/mod.ts",
-        "./symbols": "./src/symbols.ts",
+        "./symbol": "./src/symbol.ts",
         "./types": "./src/types.ts"
     },
 
@@ -66,5 +66,5 @@
 
     "tasks": { },
 
-    "version": "0.1.0"
+    "version": "0.2.0"
 }
